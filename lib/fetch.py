@@ -33,24 +33,25 @@ class Fetch:
             return None
         return comment_ids
 
-    async def fetch_response(self, session, url):
+    async def collection_helper(self, session, url):
         async with session.get(url) as response:
             return await response.text()
 
-    async def main(self, comment_id):
+    async def collect_comments(self, comment_id):
         async with aiohttp.ClientSession() as session:
-            raw_data = await self.fetch_response(
+            data = await self.collection_helper(
                 session, f"{BASE_URL}{comment_id}{SUFFIX}"
             )
-            data = json.loads(raw_data)
             try:
-                self.raw_comments.append(repr(data["text"]))
-            except:
+                json_data = json.loads(data)
+            except Exception:
                 pass
+            self.raw_comments.append(json_data)
 
 
 loop = asyncio.get_event_loop()
 
-o = Fetch("21419536")
-k = loop.run_until_complete(o.hit_thread())
-loop.run_until_complete(asyncio.gather(*[o.main(args) for args in k]))
+ob = Fetch("21419536")
+comment_ids = loop.run_until_complete(ob.hit_thread())
+res = loop.run_until_complete(asyncio.gather(*[ob.collect_comments(args) for args in comment_ids]))
+
