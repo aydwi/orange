@@ -17,10 +17,9 @@ SUFFIX = """.json?print=pretty"""
 
 class Fetch:
 
-    DATA = []
-
     def __init__(self, thread_id):
         self.thread_id = thread_id
+        self.raw_comments = []
 
     async def hit_thread(self):
         comment_ids = []
@@ -43,7 +42,7 @@ class Fetch:
             data = await self.fetch_response(session, f"{BASE_URL}{comment_id}{SUFFIX}")
             c = json.loads(data)
             try:
-                Fetch.DATA.append(repr(c["text"]))
+                self.raw_comments.append(repr(c["text"]))
             except:
                 pass
 
@@ -53,6 +52,6 @@ loop = asyncio.get_event_loop()
 o = Fetch("21419536")
 k = loop.run_until_complete(o.hit_thread())
 loop.run_until_complete(asyncio.gather(*[o.main(args) for args in k]))
-for i in Fetch.DATA:
+for i in o.raw_comments:
     print(i)
     print("\n\n-----\n\n")
