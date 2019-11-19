@@ -5,6 +5,8 @@ import asyncio
 import aiofiles
 import requests
 import json
+import urwid
+import random
 
 from multiprocessing import Pool
 
@@ -13,32 +15,44 @@ BASE_URL = """https://hacker-news.firebaseio.com/v0/item/"""
 SUFFIX = """.json?print=pretty"""
 
 
-def aget(k):
-    async def fetch(session, url):
+class Fetch:
+
+    DATA = []
+
+    def __init__(self, thread_id):
+        self.thread_id = thread_id
+
+    async def hit_thread(self):
+        comment_ids = []
+        url = f"{BASE_URL}{self.thread_id}{SUFFIX}"
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                data = await response.json()
+        try:
+            comment_ids = data["kids"]
+        except KeyError:
+            return None
+        return comment_ids
+
+    async def fetch_response(self, session, url):
         async with session.get(url) as response:
             return await response.text()
 
-    async def main(id):
+    async def main(self, comment_id):
         async with aiohttp.ClientSession() as session:
-            html = await fetch(session, BASE_URL + str(id) + SUFFIX)
-
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(asyncio.gather(*[main(args) for args in k]))
-
-
-def pool_handler():
-    p = Pool(8)
-    p.map(aget, sublists)
+            data = await self.fetch_response(session, f"{BASE_URL}{comment_id}{SUFFIX}")
+            c = json.loads(data)
+            try:
+                Fetch.DATA.append(repr(c["text"]))
+            except:
+                pass
 
 
-if __name__ == "__main__":
+loop = asyncio.get_event_loop()
 
-    r = requests.get(
-        url="https://hacker-news.firebaseio.com/v0/item/19543940.json?print=pretty"
-    )
-    k = r.json()["kids"]
-
-    sublists = [k[x : x + 300] for x in range(0, len(k), 300)]
-
-    pool_handler()
-    # aget(k)
+o = Fetch("21419536")
+k = loop.run_until_complete(o.hit_thread())
+loop.run_until_complete(asyncio.gather(*[o.main(args) for args in k]))
+for i in Fetch.DATA:
+    print(i)
+    print("\n\n-----\n\n")
