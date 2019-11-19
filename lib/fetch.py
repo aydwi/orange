@@ -3,12 +3,7 @@
 import aiohttp
 import asyncio
 import aiofiles
-import requests
 import json
-import urwid
-import random
-
-from multiprocessing import Pool
 
 
 BASE_URL = """https://hacker-news.firebaseio.com/v0/item/"""
@@ -53,5 +48,6 @@ loop = asyncio.get_event_loop()
 
 ob = Fetch("21419536")
 comment_ids = loop.run_until_complete(ob.hit_thread())
-res = loop.run_until_complete(asyncio.gather(*[ob.collect_comments(args) for args in comment_ids]))
-
+res = loop.run_until_complete(
+    asyncio.gather(*[ob.collect_comments(args) for args in comment_ids])
+)
