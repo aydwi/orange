@@ -16,7 +16,6 @@ SUFFIX = """.json?print=pretty"""
 
 
 class Fetch:
-
     def __init__(self, thread_id):
         self.thread_id = thread_id
         self.raw_comments = []
@@ -24,6 +23,7 @@ class Fetch:
     async def hit_thread(self):
         comment_ids = []
         url = f"{BASE_URL}{self.thread_id}{SUFFIX}"
+
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as response:
                 data = await response.json()
@@ -39,10 +39,12 @@ class Fetch:
 
     async def main(self, comment_id):
         async with aiohttp.ClientSession() as session:
-            data = await self.fetch_response(session, f"{BASE_URL}{comment_id}{SUFFIX}")
-            c = json.loads(data)
+            raw_data = await self.fetch_response(
+                session, f"{BASE_URL}{comment_id}{SUFFIX}"
+            )
+            data = json.loads(raw_data)
             try:
-                self.raw_comments.append(repr(c["text"]))
+                self.raw_comments.append(repr(data["text"]))
             except:
                 pass
 
@@ -52,6 +54,3 @@ loop = asyncio.get_event_loop()
 o = Fetch("21419536")
 k = loop.run_until_complete(o.hit_thread())
 loop.run_until_complete(asyncio.gather(*[o.main(args) for args in k]))
-for i in o.raw_comments:
-    print(i)
-    print("\n\n-----\n\n")
