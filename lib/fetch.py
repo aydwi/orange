@@ -46,8 +46,9 @@ class Fetch:
 
 loop = asyncio.get_event_loop()
 
-ob = Fetch("21419536")
-comment_ids = loop.run_until_complete(ob.hit_thread())
-res = loop.run_until_complete(
-    asyncio.gather(*[ob.collect_comments(args) for args in comment_ids])
+f = Fetch("21419536")
+
+comment_ids = loop.run_until_complete(f.hit_thread())
+loop.run_until_complete(
+    asyncio.gather(*[f.collect_comments(args) for args in comment_ids])
 )
