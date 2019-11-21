@@ -43,7 +43,7 @@ class Fetch:
                 pass
             self.raw_comments.append(json_data)
 
-
+"""
 loop = asyncio.get_event_loop()
 
 f = Fetch("21419536")
@@ -52,3 +52,4 @@ comment_ids = loop.run_until_complete(f.hit_thread())
 loop.run_until_complete(
     asyncio.gather(*[f.collect_comments(args) for args in comment_ids])
 )
+"""
